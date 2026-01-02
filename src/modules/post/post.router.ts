@@ -5,4 +5,6 @@ import { auth, UserRole } from "../../middlewares/auth";
 
 router.post("/", auth(UserRole.USER), PostController.createPost);
 
+router.get("/", PostController.getAllPosts);
+
 export const postRouter: Router = router;
