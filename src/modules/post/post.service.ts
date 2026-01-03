@@ -1,4 +1,5 @@
-import { Post } from "../../../generated/prisma/client";
+import { Post, PostStatus } from "../../../generated/prisma/client";
+import { PostWhereInput } from "../../../generated/prisma/models";
 import { prisma } from "../../lib/prisma";
 
 const createPost = async (
@@ -14,8 +15,76 @@ const createPost = async (
   return result;
 };
 
-const getAllPosts = async () => {
-  const posts = await prisma.post.findMany();
+const getAllPosts = async ({
+  search,
+  tags,
+  isFeatured,
+  status,
+  authorId,
+}: {
+  search: string | undefined;
+  tags: string[] | [];
+  isFeatured: boolean | undefined;
+  status: PostStatus | undefined;
+  authorId: string | undefined;
+}) => {
+  const andConditions: PostWhereInput[] = [];
+
+  if (search) {
+    andConditions.push({
+      OR: [
+        {
+          title: {
+            contains: search,
+            mode: "insensitive",
+          },
+        },
+        {
+          content: {
+            contains: search,
+            mode: "insensitive",
+          },
+        },
+        {
+          tags: {
+            has: search,
+          },
+        },
+      ],
+    });
+  }
+
+  if (tags.length > 0) {
+    andConditions.push({
+      tags: {
+        hasEvery: tags,
+      },
+    });
+  }
+
+  if (typeof isFeatured === "boolean") {
+    andConditions.push({
+      isFeatured,
+    });
+  }
+
+  if (status) {
+    andConditions.push({
+      status,
+    });
+  }
+
+  if (authorId) {
+    andConditions.push({
+      authorId,
+    });
+  }
+
+  const posts = await prisma.post.findMany({
+    where: {
+      AND: andConditions,
+    },
+  });
   return posts;
 };
 
