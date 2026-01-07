@@ -100,10 +100,27 @@ const updateComment = async (
   return result;
 };
 
+const modarateComment = async (id: string, data: { status: CommentStatus }) => {
+  const commentData = await prisma.comment.findUniqueOrThrow({
+    where: { id },
+  });
+
+  if (commentData.status === data.status) {
+    throw new Error("Comment is already in the desired status");
+  }
+
+  const result = await prisma.comment.update({
+    where: { id },
+    data: { status: data.status },
+  });
+  return result;
+};
+
 export const commentService = {
   createComment,
   getCommentById,
   getCommentByAuthor,
   deleteComment,
+  modarateComment,
   updateComment,
 };
