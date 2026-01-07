@@ -70,7 +70,27 @@ const getAllPosts = async (req: Request, res: Response) => {
 const getPostById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params as { id: string };
+
     const post = await postService.getPostById(id);
+
+    res.status(200).json(post);
+  } catch (error) {
+    res.status(400).json({
+      error: "Failed to retrieve post",
+      details: error,
+    });
+  }
+};
+
+const getMyPosts = async (req: Request, res: Response) => {
+  try {
+    const user = req.user;
+    if (!user) {
+      return res.status(400).json({
+        error: "you are not authorized",
+      });
+    }
+    const post = await postService.getPostById(user?.id as string);
 
     res.status(200).json(post);
   } catch (error) {
@@ -85,4 +105,5 @@ export const PostController = {
   getAllPosts,
   createPost,
   getPostById,
+  getMyPosts,
 };

@@ -103,6 +103,7 @@ const updateComment = async (
 const modarateComment = async (id: string, data: { status: CommentStatus }) => {
   const commentData = await prisma.comment.findUniqueOrThrow({
     where: { id },
+    select: { id: true, status: true },
   });
 
   if (commentData.status === data.status) {
