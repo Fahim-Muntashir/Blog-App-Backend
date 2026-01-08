@@ -10,8 +10,20 @@ router.post(
 
   PostController.getMyPosts,
 );
+router.get("/status", auth(UserRole.ADMIN), PostController.getStatus);
 
 router.get("/", PostController.getAllPosts);
 router.get("/:id", PostController.getPostById);
+router.patch(
+  "/:postId",
+  auth(UserRole.USER, UserRole.ADMIN),
+  PostController.updatePost,
+);
+
+router.delete(
+  "/:postId",
+  auth(UserRole.USER, UserRole.ADMIN),
+  PostController.deletePost,
+);
 
 export const postRouter: Router = router;

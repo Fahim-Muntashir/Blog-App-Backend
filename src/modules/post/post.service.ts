@@ -194,9 +194,62 @@ const getMyPosts = async (authorId: string) => {
   return result;
 };
 
+const updatePost = async (
+  postId: string,
+  data: Partial<Post>,
+  authorId: string,
+  isAdmin: boolean,
+) => {
+  const postData = await prisma.post.findFirstOrThrow({
+    where: { id: postId, authorId },
+    select: { id: true, authorId: true },
+  });
+
+  if (!isAdmin && postData.authorId !== authorId) {
+    throw new Error(
+      "Post not found or you are not authorized to update this post",
+    );
+  }
+
+  if (!isAdmin) {
+    delete data.isFeatured;
+  }
+
+  const result = await prisma.post.update({
+    where: { id: postId },
+    data: data,
+  });
+  return result;
+};
+
+const deletePost = async (
+  postId: string,
+  authorId: string,
+  isAdmin: boolean,
+) => {
+  const postData = await prisma.post.findFirstOrThrow({
+    where: { id: postId, authorId },
+    select: { id: true, authorId: true },
+  });
+
+  if (!isAdmin && postData.authorId !== authorId) {
+    throw new Error(
+      "Post not found or you are not authorized to update this post",
+    );
+  }
+
+  return await prisma.post.delete({
+    where: { id: postId },
+  });
+};
+const getStatus = async () => {};
+
 export const postService = {
   createPost,
   getAllPosts,
   getPostById,
   getMyPosts,
+  updatePost,
+  deletePost,
+  getStatus,
 };
